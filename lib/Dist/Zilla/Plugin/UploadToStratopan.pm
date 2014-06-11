@@ -4,7 +4,6 @@ our $VERSION = 0.001;
 
 use Moose;
 use LWP::UserAgent;
-use File::Slurp 'slurp';
 
 with 'Dist::Zilla::Role::Releaser';
 

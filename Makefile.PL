@@ -21,12 +21,11 @@ my %WriteMakefileArgs = (
   "NAME" => "Dist::Zilla::Plugin::UploadToStratopan",
   "PREREQ_PM" => {
     "Dist::Zilla::Role::Releaser" => 0,
-    "File::Slurp" => 0,
     "LWP::Protocol::https" => 0,
     "LWP::UserAgent" => 0,
     "Moose" => 0
   },
-  "VERSION" => "0.001",
+  "VERSION" => "0.002",
   "test" => {
     "TESTS" => ""
   }
@@ -35,7 +34,6 @@ my %WriteMakefileArgs = (
 
 my %FallbackPrereqs = (
   "Dist::Zilla::Role::Releaser" => 0,
-  "File::Slurp" => 0,
   "LWP::Protocol::https" => 0,
   "LWP::UserAgent" => 0,
   "Moose" => 0

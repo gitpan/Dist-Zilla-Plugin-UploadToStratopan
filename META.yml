@@ -14,8 +14,9 @@ meta-spec:
 name: Dist-Zilla-Plugin-UploadToStratopan
 requires:
   Dist::Zilla::Role::Releaser: '0'
-  File::Slurp: '0'
   LWP::Protocol::https: '0'
   LWP::UserAgent: '0'
   Moose: '0'
-version: '0.001'
+resources:
+  repository: git://github.com/friedo/dzil-upload-to-stratopan.git
+version: '0.002'

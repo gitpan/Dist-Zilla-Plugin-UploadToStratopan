@@ -136,7 +136,7 @@ is C<stratopan-uploader/$VERSION>.
 
 =head2 project
 
-The name is the Stratopan project. Required.
+The name of the Stratopan project. Required.
 
 =head2 stack
 

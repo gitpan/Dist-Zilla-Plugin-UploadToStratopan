@@ -22,10 +22,11 @@ my %WriteMakefileArgs = (
   "PREREQ_PM" => {
     "Dist::Zilla::Role::Releaser" => 0,
     "LWP::Protocol::https" => 0,
-    "LWP::UserAgent" => 0,
+    "Mojo::DOM" => 0,
+    "Mojo::UserAgent" => 0,
     "Moose" => 0
   },
-  "VERSION" => "0.004",
+  "VERSION" => "0.010",
   "test" => {
     "TESTS" => ""
   }
@@ -35,7 +36,8 @@ my %WriteMakefileArgs = (
 my %FallbackPrereqs = (
   "Dist::Zilla::Role::Releaser" => 0,
   "LWP::Protocol::https" => 0,
-  "LWP::UserAgent" => 0,
+  "Mojo::DOM" => 0,
+  "Mojo::UserAgent" => 0,
   "Moose" => 0
 );
 

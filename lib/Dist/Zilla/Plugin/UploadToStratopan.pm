@@ -1,9 +1,10 @@
 package Dist::Zilla::Plugin::UploadToStratopan;
 
-our $VERSION = 0.001;
+our $VERSION = 0.010;
 
 use Moose;
-use LWP::UserAgent;
+use Mojo::UserAgent;
+use Mojo::DOM;
 
 with 'Dist::Zilla::Role::Releaser';
 
@@ -13,7 +14,7 @@ has agent         => ( is           => 'ro',
                        isa          => 'Str',
                        default      => 'stratopan-uploader/' . $VERSION );
 
-has project       => ( is           => 'ro',
+has repo          => ( is           => 'ro',
                        isa          => 'Str',
                        required     => 1 );
 
@@ -26,8 +27,8 @@ has _strato_base  => ( is           => 'ro',
                        isa          => 'Str',
                        default      => 'https://stratopan.com' );
 
-has _lwp          => ( is           => 'ro',
-                       isa          => 'LWP::UserAgent',
+has _ua           => ( is           => 'ro',
+                       isa          => 'Mojo::UserAgent',
                        lazy_build   => 1 );
 
 has _username     => ( is           => 'ro',
@@ -52,11 +53,12 @@ sub _build__password {
            );
 }
 
-sub _build__lwp {
+sub _build__ua {
     my $self = shift;
 
-    return LWP::UserAgent->new( agent       => $self->agent,
-                                cookie_jar  => { } );
+    my $ua = Mojo::UserAgent->new;
+    $ua->transactor->name( 'stratopan-uploader/' . $self->VERSION );
+    return $ua;
 }
 
 sub release {
@@ -64,36 +66,34 @@ sub release {
 
     $tarball = "$tarball";    # stringify object
 
-    my $ua = $self->_lwp;
-    my $resp = $ua->post( $self->_strato_base . '/signin', {
-                  login    => $self->_username,
-                  password => $self->_password
-              } );
+    my $ua = $self->_ua;
+    my $tx = $ua->post( $self->_strato_base . '/signin',
+                        form => {
+                          login    => $self->_username,
+                          password => $self->_password
+                       } );
 
-    # do this the stupid way for now.
-    if ( $resp->decoded_content =~ m{<div id="page-alert".+Incorrect login}s ) {
-        $self->log_fatal( "Stratopan authentication failed." );
+    if ( my $error = $tx->res->dom->find( 'div#page-alert p' ) ) {
+        $self->log_fatal( $error->all_text );
     }
 
     my $submit_url = sprintf '%s/%s/%s/%s/stack/add',
-        $self->_strato_base, $self->_username, $self->project, $self->stack;
+        $self->_strato_base, $self->_username, $self->repo, $self->stack;
 
     $self->log( [ "uploading %s to %s", $tarball, $submit_url ] );
 
-    $resp = $ua->post( $submit_url,
-        Content_Type    => 'form-data',
-        Content         => [
-            archive         => [ $tarball, $tarball,
-                                 Content_Type => "application/x-gzip" ],
-            recurse     => 1,
-        ]
+    $tx = $ua->post( $submit_url,
+        form => {
+            recurse    => 1,
+            archive    => { file => $tarball }
+        }
     );
 
-    if ( $resp->code == 302 ) {
+    if ( $tx->res->code == 302 ) {
         return $self->log( "success." );
     }
 
-    $self->log_fatal( $resp->status_line );
+    $self->log_fatal( $tx->res->dom->find( 'div#page-alert p' )->all_text );
 }
 
 
@@ -113,8 +113,8 @@ Dist::Zilla::Plugin::UploadToStratopan - Automate Stratopan releases with Dist::
 In your C<dist.ini>:
 
     [UploadToStratopan]
-    project = myproject
-    stack   = master
+    repo  = myrepo
+    stack = master
 
 =head1 DESCRIPTION
 
@@ -134,13 +134,13 @@ instead.
 The HTTP user agent string to use when talking to Stratopan. The default
 is C<stratopan-uploader/$VERSION>.
 
-=head2 project
+=head2 repo
 
-The name of the Stratopan project. Required.
+The name of the Stratopan repository. Required.
 
 =head2 stack
 
-The name of the stack within your project to which you want to upload. The
+The name of the stack within your repository to which you want to upload. The
 default is C<master>.
 
 =head1 AUTHOR

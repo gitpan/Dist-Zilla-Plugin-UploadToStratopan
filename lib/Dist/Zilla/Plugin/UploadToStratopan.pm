@@ -1,6 +1,6 @@
 package Dist::Zilla::Plugin::UploadToStratopan;
 
-our $VERSION = 0.010;
+our $VERSION = 0.011;
 
 use Moose;
 use Mojo::UserAgent;
@@ -57,7 +57,7 @@ sub _build__ua {
     my $self = shift;
 
     my $ua = Mojo::UserAgent->new;
-    $ua->transactor->name( 'stratopan-uploader/' . $self->VERSION );
+    $ua->transactor->name( $self->agent );
     return $ua;
 }
 

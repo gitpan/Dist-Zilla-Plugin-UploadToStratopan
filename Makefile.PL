@@ -26,7 +26,7 @@ my %WriteMakefileArgs = (
     "Mojo::UserAgent" => 0,
     "Moose" => 0
   },
-  "VERSION" => "0.011",
+  "VERSION" => "0.012",
   "test" => {
     "TESTS" => ""
   }

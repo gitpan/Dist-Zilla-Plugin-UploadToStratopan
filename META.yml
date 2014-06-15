@@ -20,4 +20,4 @@ requires:
   Moose: '0'
 resources:
   repository: git://github.com/friedo/dzil-upload-to-stratopan.git
-version: '0.011'
+version: '0.012'
